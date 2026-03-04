@@ -1,0 +1,39 @@
+{
+  "name": "synqaro",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "nodemon src/index.js"
+  },
+  "keywords": [],
+  "author": "emisam",
+  "license": "ISC",
+  "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "chalk": "^5.6.2",
+    "cors": "^2.8.6",
+    "dotenv": "^17.3.1",
+    "express": "^5.2.1",
+    "jsonwebtoken": "^9.0.3",
+    "module-alias": "^2.3.4",
+    "morgan": "^1.10.1",
+    "mysql2": "^3.18.2",
+    "sequelize": "^6.37.7",
+    "slugify": "^1.6.6",
+    "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.14"
+  },
+  "imports": {
+    "#modules/*": "./src/modules/*",
+    "#utils/*": "./src/shared/utils/*",
+    "#config/*": "./src/shared/config/*",
+    "#constants/*": "./src/shared/constants/*",
+    "#middlewares/*": "./src/middlewares/*",
+    "#models/*": "./src/models/*"
+  }
+}

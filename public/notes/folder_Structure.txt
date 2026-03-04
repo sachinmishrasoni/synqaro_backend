@@ -1,0 +1,112 @@
+synqaro/
+│
+├── src/
+│   │
+│   ├── app.js
+│   ├── server.js
+│   │
+│   ├── config/
+│   │   ├── database.js
+│   │   ├── env.js
+│   │   └── logger.js
+│   │
+│   ├── models/                ← ONLY associations here
+│   │   └── index.js
+│   │
+│   ├── modules/               ← Feature-based modules
+│   │
+│   │   ├── auth/
+│   │   │   ├── auth.model.js
+│   │   │   ├── auth.controller.js
+│   │   │   ├── auth.service.js
+│   │   │   ├── auth.routes.js
+│   │   │   └── auth.schema.js
+│   │   │
+│   │   ├── user/
+│   │   │   ├── user.model.js
+│   │   │   ├── user.controller.js
+│   │   │   ├── user.service.js
+│   │   │   ├── user.routes.js
+│   │   │   └── user.schema.js
+│   │   │
+│   │   ├── profile/
+│   │   │   ├── profile.model.js
+│   │   │   ├── profile.controller.js
+│   │   │   ├── profile.service.js
+│   │   │   ├── profile.routes.js
+│   │   │   └── profile.schema.js
+│   │   │
+│   │   ├── post/
+│   │   │   ├── post.model.js
+│   │   │   ├── post.controller.js
+│   │   │   ├── post.service.js
+│   │   │   ├── post.routes.js
+│   │   │   └── post.schema.js
+│   │   │
+│   │   ├── comment/
+│   │   │   ├── comment.model.js
+│   │   │   ├── comment.controller.js
+│   │   │   ├── comment.service.js
+│   │   │   ├── comment.routes.js
+│   │   │   └── comment.schema.js
+│   │   │
+│   │   ├── follow/
+│   │   │   ├── follow.model.js
+│   │   │   ├── follow.controller.js
+│   │   │   ├── follow.service.js
+│   │   │   └── follow.routes.js
+│   │   │
+│   │   ├── todo/
+│   │   │   ├── todo.model.js
+│   │   │   ├── subTodo.model.js
+│   │   │   ├── todo.controller.js
+│   │   │   ├── todo.service.js
+│   │   │   ├── todo.routes.js
+│   │   │   └── todo.schema.js
+│   │   │
+│   │   ├── notebook/
+│   │   │   ├── notebook.model.js
+│   │   │   ├── note.model.js
+│   │   │   ├── notebook.controller.js
+│   │   │   ├── notebook.service.js
+│   │   │   ├── notebook.routes.js
+│   │   │   └── notebook.schema.js
+│   │   │
+│   │   └── notification/
+│   │       ├── notification.model.js
+│   │       ├── notification.controller.js
+│   │       ├── notification.service.js
+│   │       └── notification.routes.js
+│   │
+│   ├── middlewares/
+│   │   ├── auth.middleware.js
+│   │   ├── errorHandler.js
+│   │   ├── validate.middleware.js
+│   │   └── rateLimit.middleware.js
+│   │
+│   ├── utils/
+│   │   ├── asyncHandler.js
+│   │   ├── sendResponse.js
+│   │   ├── generateToken.js
+│   │   ├── hash.js
+│   │   └── otpGenerator.js
+│   │
+│   ├── constants/
+│   │   ├── httpStatus.js
+│   │   ├── roles.js
+│   │   └── enums.js
+│   │
+│   └── routes/
+│       └── index.js          ← All module routes mounted here
+│
+├── migrations/               ← Sequelize CLI migrations
+│
+├── seeders/                  ← Dummy data (optional)
+│
+├── tests/                    ← Unit / integration tests
+│
+├── .env
+├── .env.example
+├── .gitignore
+├── package.json
+└── README.md

@@ -1,0 +1,13 @@
+{
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "#modules/*": ["src/modules/*"],
+      "#utils/*": ["src/shared/utils/*"],
+      "#config/*": ["src/shared/config/*"],
+      "#constants/*": ["src/shared/constants/*"],
+      "#middlewares/*": ["src/middlewares/*"],
+      "#models/*": ["src/models/*"]
+    }
+  }
+}
