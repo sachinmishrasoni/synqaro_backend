@@ -1,0 +1,75 @@
+Sequelize CLI Install
+-> npm install --save-dev sequelize-cli
+
+Sequelize CLI initialize
+-> npx sequelize-cli init
+
+By Defaut create these folder in root
+config/
+models/
+migrations/
+seeders/
+
+For Custom CLI Config add this file
+.sequelizerc
+
+Migration generate
+-> npx sequelize-cli migration:generate --name create-users-table
+
+will create this file
+ex. src/migrations/XXXXXXXX-create-users-table.js
+
+Migration run
+npx sequelize-cli db:migrate
+
+Migration undo
+npx sequelize-cli db:migrate:undo
+
+
+Add Shortcut in json file
+
+Create migration:
+- npm run migrate:create -- --name create-posts-table
+
+Run migration:
+- npm run migrate
+
+Undo migration:
+- npm run migrate:undo
+
+Important Difference
+-> sequelize.sync()
+    :) development
+    :) quick testing
+
+-> migrations
+    :) production
+    :) version control
+    :) team collaboration
+
+
+Migration Naming Convention
+-> action + table/feature
+
+Pattern:
+- action-target
+
+Example:
+- create-users-table
+- create-profiles-table
+- add-phone-to-users
+- remove-bio-from-users
+- rename-username-to-handle
+- add-user-id-to-posts
+
+
+Common Actions
+
+Most common migration actions:
+
+Action	Example
+create	create-users-table
+add	    add-phone-to-users
+remove	remove-avatar-from-profiles
+rename	rename-username-to-handle
+change	change-email-type-in-users
