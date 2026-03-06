@@ -15,7 +15,7 @@ const authToken = sequelize.define("AuthToken", {
             key: "id",
         }
     },
-    token: {
+    refreshToken: {
         type: DataTypes.STRING,
         allowNull: false,
     },

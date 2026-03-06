@@ -1,5 +1,6 @@
 import { DataTypes } from "sequelize";
 import sequelize from "../../shared/config/database.js";
+import { hashPassword } from "#utils/password.js";
 
 const User = sequelize.define("User", {
     id: {
@@ -45,6 +46,11 @@ const User = sequelize.define("User", {
         allowNull: false,
         defaultValue: true
     },
+    isEmailVerified: {
+        type: DataTypes.BOOLEAN,
+        allowNull: false,
+        defaultValue: false
+    },
     status: {
         type: DataTypes.ENUM("active", "suspended", "banned"),
         allowNull: false,
@@ -54,7 +60,34 @@ const User = sequelize.define("User", {
     tableName: "users",
     timestamps: true,
     underscored: true,
-    paranoid: true
+    paranoid: true,
+    defaultScope: {
+        attributes: { exclude: ["password"] }
+    },
+    scopes: {
+        withPassword: {
+            attributes: { include: ["password"] }
+        }
+    },
+    hooks: {
+        beforeSave: async (user) => {
+            if (user.changed("password")) {
+                user.password = await hashPassword(user.password);
+            }
+        }
+    }
 });
+
+// User.addHook("beforeSave", async (user) => {
+//     if (user.changed("password")) {
+//         user.password = await bcrypt.hash(user.password, 10);
+//     }
+// });
+
+// User.addHook("beforeUpdate", async (user) => {
+//     if (user.changed("password")) {
+//         user.password = await bcrypt.hash(user.password, 10);
+//     }
+// });
 
 export default User;
