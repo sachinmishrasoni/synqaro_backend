@@ -1,9 +1,11 @@
 import { Router } from "express";
 import { register } from "./auth.controller.js";
+import { validate } from "#middlewares/validate.js";
+import { registerUserSchema } from "./auth.schema.js";
 
 const authRoutes = Router();
 
-authRoutes.post("/register", register);
+authRoutes.post("/register", validate(registerUserSchema), register);
 // authRoutes.post("/login", asyncHandler(loginUser));
 // authRoutes.post("/logout", asyncHandler(logoutUser));
 // authRoutes.post("/refresh-token", asyncHandler(refreshToken));

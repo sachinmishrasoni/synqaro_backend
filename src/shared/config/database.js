@@ -20,14 +20,14 @@ export const connectDB = async () => {
         await sequelize.authenticate();
         logSuccess("Database connected successfully.");
 
-        if (env.nodeEnv === "development") {
-            // await sequelize.sync();
-            await sequelize.sync({ alter: true });
-            // await sequelize.sync({ force: true });
+        // if (env.nodeEnv === "development") {
+        //     // await sequelize.sync();
+        //     // await sequelize.sync({ alter: true });
+        //     // await sequelize.sync({ force: true });
 
-            // console.log("Tables synced successfully.");
-            logSuccess("Tables synced successfully.");
-        }
+        //     // console.log("Tables synced successfully.");
+        //     logSuccess("Tables synced successfully.");
+        // }
 
     } catch (error) {
         // console.error("Database connection failed:", error);

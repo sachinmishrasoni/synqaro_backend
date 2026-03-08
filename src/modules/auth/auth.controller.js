@@ -8,7 +8,7 @@ export const register = asyncHandler(async (req, res) => {
     sendResponse(res, {
         statusCode: 201,
         message: "Otp sent successfully",
-        data: user.userId
+        data: user
     });
 });
 
