@@ -1,11 +1,12 @@
 import { Router } from "express";
-import { register } from "./auth.controller.js";
+import { register, verifyEmailOtp } from "./auth.controller.js";
 import { validate } from "#middlewares/validate.js";
-import { registerUserSchema } from "./auth.schema.js";
+import { registerUserSchema, verifyEmailOtpSchema } from "./auth.schema.js";
 
 const authRoutes = Router();
 
 authRoutes.post("/register", validate(registerUserSchema), register);
+authRoutes.post("/verify-email-otp", validate(verifyEmailOtpSchema), verifyEmailOtp);
 // authRoutes.post("/login", asyncHandler(loginUser));
 // authRoutes.post("/logout", asyncHandler(logoutUser));
 // authRoutes.post("/refresh-token", asyncHandler(refreshToken));

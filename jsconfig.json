@@ -6,8 +6,10 @@
       "#utils/*": ["src/shared/utils/*"],
       "#config/*": ["src/shared/config/*"],
       "#constants/*": ["src/shared/constants/*"],
+      "#services/*": ["src/shared/services/*"],
       "#middlewares/*": ["src/middlewares/*"],
-      "#models/*": ["src/models/*"]
+      "#models/*": ["src/models/*"],
+      "#templates/*": ["src/templates/*"]
     }
   }
 }

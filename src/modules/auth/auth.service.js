@@ -1,8 +1,10 @@
 import sequelize from "#config/database.js";
 import { OtpCode, User } from "#models/index.js";
+import { sendEmail } from "#services/email.service.js";
+import { generateOtp } from "#services/otp.service.js";
+import { otpEmailTemplate } from "#templates/otpEmail.js";
+import { welcomeEmailTemplate } from "#templates/welcomeEmailTemplate.js";
 import AppError from "#utils/AppError.js";
-import { generateOtp } from "#utils/generateOtp.js";
-import { sendEmail } from "#utils/sendEmail.js";
 import { Op } from "sequelize";
 
 // export const registerUser = async (data) => {
@@ -67,7 +69,7 @@ export const registerUser = async (data) => {
         let user;
 
         // Case 2: User exists but not verified
-        if(existingUser && !existingUser.isEmailVerified) {
+        if (existingUser && !existingUser.isEmailVerified) {
             user = existingUser;
 
             // delete previous OTPs
@@ -78,7 +80,7 @@ export const registerUser = async (data) => {
                 },
                 transaction
             });
-        }else {
+        } else {
             user = await User.create({
                 firstName,
                 lastName,
@@ -102,7 +104,14 @@ export const registerUser = async (data) => {
 
         await transaction.commit();
 
-        await sendEmail(user.email, "Verify your email", `Your OTP is ${otp}`);
+        // await sendEmail(user.email, "Verify your email", `Your OTP is ${otp}`);
+
+        await sendEmail({
+            to: user.email,
+            subject: "Verify your email",
+            // text: `Your OTP is ${otp}`,
+            html: otpEmailTemplate({ otp }),
+        })
 
         return {
             id: user.id,
@@ -123,30 +132,48 @@ export const verifyEmailOtp = async (userId, otpCode) => {
         throw new AppError("User not found", 404);
     }
 
+    if (user.isEmailVerified) {
+        throw new AppError("Email already verified", 400);
+    }
+
     const otp = await OtpCode.findOne({
         where: {
             userId,
             type: "email_verification",
             used: false
-        }
+        },
+        order: [["createdAt", "DESC"]]
     })
 
     if (!otp) {
-        throw new AppError("Invalid OTP", 404);
+        throw new AppError("Invalid OTP", 400);
     }
 
     if (otp.expiresAt < new Date()) {
         throw new AppError("OTP expired", 400);
     }
 
+    if (otp.attemptCount >= 5) {
+        throw new AppError("OTP limit exceeded", 429);
+    }
+
     if (otp.code !== otpCode) {
+        await otp.increment("attemptCount");
+
         throw new AppError("Invalid OTP", 400);
     }
+
 
     user.isEmailVerified = true;
     await user.save();
 
     await otp.update({ used: true });
+
+    await sendEmail({
+        to: user.email,
+        subject: "Account Created Successfully",
+        html: welcomeEmailTemplate({ name: user.firstName }),
+    })
 
     return {
         id: user.id,

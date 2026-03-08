@@ -9,11 +9,4 @@ const transporter = nodemailer.createTransport({
     }
 });
 
-export const sendEmail = async (to, subject, text) => {
-    await transporter.sendMail({
-        from: env.email.user,
-        to,
-        subject,
-        text
-    });
-};
+export default transporter;
