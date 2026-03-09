@@ -1,7 +1,7 @@
 import { DataTypes } from "sequelize";
 import sequelize from "../../shared/config/database.js";
 
-const authToken = sequelize.define("AuthToken", {
+const AuthToken = sequelize.define("AuthToken", {
     id: {
         type: DataTypes.INTEGER,
         primaryKey: true,
@@ -37,4 +37,4 @@ const authToken = sequelize.define("AuthToken", {
     underscored: true
 });
 
-export default authToken;
+export default AuthToken;

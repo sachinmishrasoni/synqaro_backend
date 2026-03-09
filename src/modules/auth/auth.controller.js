@@ -29,10 +29,31 @@ export const verifyEmailOtp = asyncHandler(async (req, res) => {
     });
 });
 
-export const resendEmailOtp = asyncHandler(async (req, res) => {
+export const resendOtp = asyncHandler(async (req, res) => {
+
+    const { userId } = req.body || {};
+
+    const result = await authService.resendEmailOtp(userId);
+
+    sendResponse(res, {
+        statusCode: 200,
+        message: result.message
+    });
 
 });
 
 export const login = asyncHandler(async (req, res) => {
+    const { userName, email, password } = req.body || {};
 
+    const result = await authService.loginUser({
+        userName,
+        email,
+        password
+    }, req.ip, req.headers["user-agent"]);
+
+    sendResponse(res, {
+        statusCode: 200,
+        message: "Login successful",
+        data: result
+    });
 });

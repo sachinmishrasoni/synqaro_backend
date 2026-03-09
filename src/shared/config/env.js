@@ -16,6 +16,10 @@ const env = {
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS,
   },
+  jwt: {
+    accessSecret: process.env.JWT_ACCESS_SECRET,
+    refreshSecret: process.env.JWT_REFRESH_SECRET,
+  },
 };
 
 export default env;

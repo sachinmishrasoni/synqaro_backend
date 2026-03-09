@@ -73,3 +73,6 @@ add	    add-phone-to-users
 remove	remove-avatar-from-profiles
 rename	rename-username-to-handle
 change	change-email-type-in-users
+
+#Generate Access Token
+node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
