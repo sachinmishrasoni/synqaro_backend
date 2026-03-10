@@ -353,7 +353,23 @@ export const refreshAccessToken = async (refreshToken) => {
     }
 };
 
-export const logoutUser = (user) => { };
+export const logoutUser = async (refreshToken) => {
+    const session = await AuthToken.findOne({
+        where: {
+            refreshToken
+        }
+    });
+
+    if (!session) {
+        throw new AppError("Invalid refresh token", 401);
+    }
+
+    await session.destroy();
+
+    return {
+        message: "Logged out successfully"
+    }
+};
 
 export const verifyUser = (user) => { };
 

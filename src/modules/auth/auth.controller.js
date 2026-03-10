@@ -57,3 +57,27 @@ export const login = asyncHandler(async (req, res) => {
         data: result
     });
 });
+
+export const refreshToken = asyncHandler(async (req, res) => {
+    const { refreshToken } = req.body || {};
+
+    const result = await authService.refreshAccessToken(refreshToken);
+
+    sendResponse(res, {
+        statusCode: 200,
+        message: "Token refreshed successfully",
+        data: result
+    });
+});
+
+export const logout = asyncHandler(async (req, res) => {
+    const { refreshToken } = req.body || {};
+
+    const result = await authService.logoutUser(refreshToken);
+
+    sendResponse(res, {
+        statusCode: 200,
+        message: result.message
+    });
+});
+
