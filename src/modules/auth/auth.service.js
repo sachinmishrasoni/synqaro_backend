@@ -371,8 +371,6 @@ export const logoutUser = async (refreshToken) => {
     }
 };
 
-export const verifyUser = (user) => { };
-
 export const resetPassword = (user) => { };
 
 export const changePassword = (user) => { };
