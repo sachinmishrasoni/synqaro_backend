@@ -8,7 +8,7 @@ import AppError from "#utils/AppError.js";
 import { Op } from "sequelize";
 import bcrypt from "bcrypt";
 import { generateAccessToken, generateRefreshToken, verifyRefreshToken } from "#services/jwt.service.js";
-import { comparePassword } from "#utils/password";
+import { comparePassword } from "#utils/password.js";
 
 // export const registerUser = async (data) => {
 //     const { firstName, lastName, userName, email, password } = data || {};
@@ -154,20 +154,7 @@ export const verifyEmailOtp = async (userId, otpCode) => {
 
     // Attempt limit exceeded
     if (otp.attemptCount >= 5) {
-
         await otp.update({ used: true });
-
-        throw new AppError(
-            "Too many incorrect attempts. Please request a new OTP.",
-            429
-        );
-    }
-
-    // Attempt limit exceeded
-    if (otp.attemptCount >= 5) {
-
-        await otp.update({ used: true });
-
         throw new AppError(
             "Too many incorrect attempts. Please request a new OTP.",
             429
@@ -176,11 +163,8 @@ export const verifyEmailOtp = async (userId, otpCode) => {
 
     // Wrong OTP
     if (otp.code !== otpCode) {
-
         await otp.increment("attemptCount");
-
         const remainingAttempts = 5 - (otp.attemptCount + 1);
-
         throw new AppError(
             `Invalid OTP. ${remainingAttempts} attempt(s) remaining.`,
             400
