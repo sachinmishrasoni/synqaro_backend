@@ -14,3 +14,15 @@ export const getMyProfile = asyncHandler(async (req, res) => {
         data: profile
     });
 });
+
+export const updateProfile = asyncHandler(async (req, res) => {
+    const userId = req.user.id;
+
+    const profile = await profileService.updateProfile(userId, req.body);
+
+    sendResponse(res, {
+        statusCode: 200,
+        message: "Profile updated successfully",
+        data: profile
+    });
+});
