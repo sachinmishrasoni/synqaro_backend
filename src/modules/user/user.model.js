@@ -1,6 +1,7 @@
 import { DataTypes } from "sequelize";
 import sequelize from "../../shared/config/database.js";
 import { hashPassword } from "#utils/password.js";
+import { Profile } from "#models/index.js";
 
 const User = sequelize.define("User", {
     id: {
@@ -70,10 +71,19 @@ const User = sequelize.define("User", {
         }
     },
     hooks: {
+        // Hash password before saving
         beforeSave: async (user) => {
             if (user.changed("password")) {
                 user.password = await hashPassword(user.password);
             }
+        },
+
+        // Profile will be created automatically when user is created
+        afterCreate: async (user, options) => {
+            await Profile.create(
+                { userId: user.id },
+                { transaction: options.transaction }
+            );
         }
     }
 });

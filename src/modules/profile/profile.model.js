@@ -10,6 +10,7 @@ const Profile = sequelize.define("Profile", {
     userId: {
         type: DataTypes.INTEGER,
         allowNull: false,
+        unique: true,
         references: {
             model: "users",
             key: "id",
@@ -24,7 +25,7 @@ const Profile = sequelize.define("Profile", {
         allowNull: true,
     },
     bio: {
-        type: DataTypes.STRING,
+        type: DataTypes.TEXT,
         allowNull: true,
     },
     location: {
@@ -38,6 +39,7 @@ const Profile = sequelize.define("Profile", {
     phone: {
         type: DataTypes.STRING,
         allowNull: true,
+        len: [10, 15]
     },
     passion: {
         type: DataTypes.STRING,
@@ -45,7 +47,7 @@ const Profile = sequelize.define("Profile", {
     },
 }, {
     tableName: "profiles",
-    timestamps: false,
+    timestamps: true,
     underscored: true
 });
 
