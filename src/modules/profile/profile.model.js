@@ -20,7 +20,15 @@ const Profile = sequelize.define("Profile", {
         type: DataTypes.STRING,
         allowNull: true,
     },
+    bannerPublicId: {
+        type: DataTypes.STRING,
+        allowNull: true,
+    },
     avatar: {
+        type: DataTypes.STRING,
+        allowNull: true,
+    },
+    avatarPublicId: {
         type: DataTypes.STRING,
         allowNull: true,
     },

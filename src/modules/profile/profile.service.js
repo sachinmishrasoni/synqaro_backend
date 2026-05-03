@@ -7,13 +7,13 @@ export const getMyProfile = async (userId) => {
     const profile = await Profile.findOne({
         where: { userId },
         // attributes: ["banner", "avatar", "bio"],
-        attributes: {
-            exclude: ["userId"]
-        },
+        // attributes: {
+        //     exclude: ["userId", "bannerPublicId", "avatarPublicId"]
+        // },
         // raw: true,
         include: {
             model: User,
-            attributes: ["id", "first_name", "last_name", "email", "user_name"],
+            attributes: ["id", "firstName", "lastName", "email", "userName"],
         }
     });
 
@@ -33,9 +33,19 @@ export const updateProfile = async (userId, data) => {
     }
 
     const allowedFields = ["banner", "avatar", "bio", "location", "dob", "phone", "passion"];
+    const systemFields = ["avatarPublicId", "bannerPublicId"];
 
     const updateData = {};
+
+    // user allowed
     for (const key of allowedFields) {
+        if (data[key] !== undefined) {
+            updateData[key] = data[key];
+        }
+    }
+
+    // system controlled
+    for (const key of systemFields) {
         if (data[key] !== undefined) {
             updateData[key] = data[key];
         }
@@ -48,13 +58,13 @@ export const updateProfile = async (userId, data) => {
     await profile.update(updateData);
 
     const updatedProfile = await profile.reload({
-        where: { userId },
-        attributes: {
-            exclude: ["userId"]
-        },
+        // Not work attributes in reload so we have to use toJSON method and exclude fields
+        // attributes: {
+        //     exclude: ["userId", "bannerPublicId", "avatarPublicId"]
+        // },
         include: {
             model: User,
-            attributes: ["id", "first_name", "last_name", "email", "user_name"],
+            attributes: ["id", "firstName", "lastName", "email", "userName"],
         }
     });
 
