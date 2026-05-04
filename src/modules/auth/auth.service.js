@@ -109,7 +109,7 @@ export const registerUser = async (data) => {
 
         // await sendEmail(user.email, "Verify your email", `Your OTP is ${otp}`);
 
-        await sendEmail({
+        sendEmail({
             to: user.email,
             subject: "Verify your email",
             // text: `Your OTP is ${otp}`,
@@ -179,7 +179,7 @@ export const verifyEmailOtp = async (userId, otpCode) => {
     await otp.update({ used: true });
 
     // Send welcome email
-    await sendEmail({
+    sendEmail({
         to: user.email,
         subject: "Account Created Successfully",
         html: welcomeEmailTemplate({ name: user.firstName }),
@@ -236,7 +236,7 @@ export const resendEmailOtp = async (userId) => {
         attemptCount: 0
     });
 
-    await sendEmail({
+    sendEmail({
         to: user.email,
         subject: "Resend Email Verification OTP",
         html: otpEmailTemplate({ otp })
