@@ -41,4 +41,4 @@ Tag.belongsToMany(Post, {
     onDelete: "CASCADE"
 });
 
-export { User, Profile, AuthToken, OtpCode };
+export { User, Profile, AuthToken, OtpCode, Post, Tag, PostTag };

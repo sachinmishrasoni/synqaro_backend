@@ -1,7 +1,5 @@
 import sequelize from "#config/database.js";
-import { User } from "#models/index.js";
-import Tag from "../tag/tag.model.js";
-import Post from "./post.model.js";
+import { Post, Tag, User } from "#models/index.js";
 
 
 // Create Post
@@ -80,8 +78,40 @@ export const createPost = async (userId, data) => {
 };
 
 // Get Posts
-export const getPosts = async () => {
+export const getPosts = async (query) => {
+    const page = parseInt(query.page) || 1;
+    const limit = parseInt(query.limit) || 10;
+    const offset = (page - 1) * limit;
 
+    const posts = await Post.findAndCountAll({
+        limit,
+        offset,
+        attributes: { exclude: ["imagePublicId", "userId", "deletedAt"] },
+        order: [["createdAt", "DESC"]],
+        include: [
+            {
+                model: Tag,
+                as: "tags",
+                attributes: ["id", "name"],
+                through: { attributes: [] } // hide post_tags
+            },
+            {
+                model: User,
+                as: "user",
+                attributes: ["id", "firstName", "lastName", "email", "userName"]
+            },
+        ]
+    });
+
+    return {
+        meta: {
+            total: posts.count,
+            page,
+            limit,
+            totalPages: Math.ceil(posts.count / limit)
+        },
+        data: posts.rows
+    };
 }
 
 // Get Post by Id

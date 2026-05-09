@@ -54,3 +54,14 @@ export const createPost = asyncHandler(async (req, res) => {
         data: post
     });
 });
+
+export const getPosts = asyncHandler(async (req, res) => {
+    const posts = await postService.getPosts(req.query);
+
+    sendResponse(res, {
+        statusCode: 200,
+        message: "Posts fetched successfully",
+        data: posts.data,
+        meta: posts.meta
+    });
+});
