@@ -78,3 +78,65 @@ export const getPostById = asyncHandler(async (req, res) => {
     });
 });
 
+export const updatePost = asyncHandler(async (req, res) => {
+    const userId = req.user.id;
+    const postId = req.params.id;
+
+    const { title, content, status, tags } = req.body || {};
+
+    // if (!title || !content) {
+    //     throw new AppError("Title and content are required", 400);
+    // }
+
+    let imageData = {};
+    if (req.file) {
+        const result = await uploadImage(req.file.buffer, "posts");
+
+        imageData = {
+            image: result.secure_url,
+            imagePublicId: result.public_id
+        };
+    }
+
+    let publishData = {};
+    if (status === "published") {
+        publishData.publishedAt = new Date();
+    }
+
+    let parsedTags = [];
+    if (tags) {
+        parsedTags = typeof tags === "string"
+            ? tags.split(",").map(t => t.trim().toLowerCase())
+            : tags.map(t => t.trim().toLowerCase());
+    }
+
+    const post = await postService.updatePost(userId, postId, {
+        title,
+        content,
+        status,
+        tags: parsedTags,
+        ...imageData,
+        ...publishData
+    });
+
+    sendResponse(res, {
+        statusCode: 200,
+        message: "Post updated successfully",
+        data: post
+    });
+});
+
+export const deletePost = asyncHandler(async (req, res) => {
+    const userId = req.user.id;
+    const postId = req.params.id;
+
+    await postService.deletePost(userId, postId);
+
+    sendResponse(res, {
+        statusCode: 200,
+        message: "Post deleted successfully",
+        data: {
+            id: postId
+        }
+    });
+});

@@ -2,6 +2,7 @@ import sequelize from "#config/database.js";
 import { Post, Tag, User } from "#models/index.js";
 import AppError from "#utils/AppError.js";
 import { Op } from "sequelize";
+import { getOrCreateTags } from "../tag/tag.service.js";
 
 
 // Create Post
@@ -19,32 +20,7 @@ export const createPost = async (userId, data) => {
 
         // Step 2: Handle tags
         if (tags.length > 0) {
-            const uniqueTags = [...new Set(tags)];
-
-            const existingTags = await Tag.findAll({
-                where: { name: uniqueTags },
-                transaction
-            });
-
-            const existingNames = existingTags.map(tag => tag.name);
-
-            const newTags = uniqueTags
-                .filter(tag => !existingNames.includes(tag))
-                .map(name => ({ name }));
-
-            let createdTags = [];
-            if (newTags.length > 0) {
-                createdTags = await Tag.bulkCreate(newTags, { transaction });
-            }
-
-            const allTags = [...existingTags, ...createdTags];
-
-            // console.log("uniqueTags", uniqueTags);
-            // console.log("existingNames", existingNames);
-            // console.log("newTags", newTags);
-            // console.log("createdTags", createdTags);
-            // console.log("allTags", allTags);
-
+            const allTags = await getOrCreateTags(tags, transaction);
             await post.setTags(allTags, { transaction });
         }
 
@@ -52,7 +28,7 @@ export const createPost = async (userId, data) => {
 
         // Step 3: Fetch full data with relations
         const fullPost = await Post.findByPk(post.id, {
-            attributes: { exclude: ["imagePublicId"] },
+            attributes: { exclude: ["imagePublicId", "userId", "deletedAt"] },
             include: [
                 {
                     model: Tag,
@@ -157,11 +133,71 @@ export const getPostById = async (postId) => {
 }
 
 // Update Post
-export const updatePost = async (id, data) => {
+export const updatePost = async (userId, postId, data) => {
+    const transaction = await sequelize.transaction();
 
+    try {
+        const { tags = [], ...postData } = data;
+
+        const post = await Post.findByPk(postId, { transaction });
+
+        if (!post) {
+            throw new AppError("Post not found", 404);
+        }
+
+        if (post.userId !== userId) {
+            throw new AppError("You are not authorized to update this post", 403);
+        }
+
+        await post.update(postData, { transaction });
+
+        if (tags) {
+            const allTags = await getOrCreateTags(tags, transaction);
+            await post.setTags(allTags, { transaction });
+        }
+
+        await transaction.commit();
+
+        const fullPost = await Post.findByPk(post.id, {
+            attributes: { exclude: ["imagePublicId", "userId", "deletedAt"] },
+            include: [
+                {
+                    model: Tag,
+                    as: "tags",
+                    attributes: ["id", "name"],
+                    through: { attributes: [] } // hide post_tags
+                },
+                {
+                    model: User,
+                    as: "user",
+                    attributes: ["id", "firstName", "lastName", "email", "userName"]
+                },
+            ]
+        });
+
+        return fullPost;
+
+    } catch (err) {
+        if (!transaction.finished) {
+            await transaction.rollback();
+        }
+        throw err;
+    }
 }
 
 // Delete Post
-export const deletePost = async (id) => {
+export const deletePost = async (userId, postId) => {
+    const post = await Post.findByPk(postId);
 
+    if (!post) {
+        throw new AppError("Post not found", 404);
+    }
+
+    if (post.userId !== userId) {
+        throw new AppError("You are not authorized to delete this post", 403);
+    }
+
+    await post.destroy();
+
+    return true;
 }
