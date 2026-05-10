@@ -65,3 +65,16 @@ export const getPosts = asyncHandler(async (req, res) => {
         meta: posts.meta
     });
 });
+
+export const getPostById = asyncHandler(async (req, res) => {
+    const postId = req.params.id;
+
+    const post = await postService.getPostById(postId);
+
+    sendResponse(res, {
+        statusCode: 200,
+        message: "Post fetched successfully",
+        data: post
+    });
+});
+

@@ -1,5 +1,7 @@
 import sequelize from "#config/database.js";
 import { Post, Tag, User } from "#models/index.js";
+import AppError from "#utils/AppError.js";
+import { Op } from "sequelize";
 
 
 // Create Post
@@ -83,24 +85,38 @@ export const getPosts = async (query) => {
     const limit = parseInt(query.limit) || 10;
     const offset = (page - 1) * limit;
 
+    const { userId, tag, search, status } = query;
+
+    const where = {};
+    if (userId) where.userId = userId;
+    if (status) where.status = status;
+    if (search) where.title = {
+        [Op.like]: `%${search}%`
+    };
+
+    const include = [
+        {
+            model: Tag,
+            as: "tags",
+            attributes: ["id", "name"],
+            through: { attributes: [] }, // hide post_tags
+            ...(tag && { where: { name: tag } })
+        },
+        {
+            model: User,
+            as: "user",
+            attributes: ["id", "firstName", "lastName", "email", "userName"]
+        },
+    ];
+
     const posts = await Post.findAndCountAll({
+        where,
+        include,
+        distinct: true,
         limit,
         offset,
         attributes: { exclude: ["imagePublicId", "userId", "deletedAt"] },
         order: [["createdAt", "DESC"]],
-        include: [
-            {
-                model: Tag,
-                as: "tags",
-                attributes: ["id", "name"],
-                through: { attributes: [] } // hide post_tags
-            },
-            {
-                model: User,
-                as: "user",
-                attributes: ["id", "firstName", "lastName", "email", "userName"]
-            },
-        ]
     });
 
     return {
@@ -115,8 +131,29 @@ export const getPosts = async (query) => {
 }
 
 // Get Post by Id
-export const getPostById = async (id) => {
+export const getPostById = async (postId) => {
+    const post = await Post.findByPk(postId, {
+        attributes: { exclude: ["imagePublicId", "userId", "deletedAt"] },
+        include: [
+            {
+                model: Tag,
+                as: "tags",
+                attributes: ["id", "name"],
+                through: { attributes: [] }
+            },
+            {
+                model: User,
+                as: "user",
+                attributes: ["id", "firstName", "lastName", "email", "userName"]
+            },
+        ]
+    });
 
+    if (!post) {
+        throw new AppError("Post not found", 404);
+    }
+
+    return post;
 }
 
 // Update Post
