@@ -5,6 +5,8 @@ import OtpCode from "#modules/auth/otpCode.model.js";
 import Post from "#modules/social/post/post.model.js";
 import Tag from "#modules/social/tag/tag.model.js";
 import PostTag from "#modules/social/tag/postTag.model.js";
+import Comment from "#modules/social/comment/comment.model.js";
+import Reaction from "#modules/social/reaction/reaction.model.js";
 
 /* User <--> Profile(1:1) */
 User.hasOne(Profile, { foreignKey: "userId", onDelete: "CASCADE" });
@@ -41,4 +43,56 @@ Tag.belongsToMany(Post, {
     onDelete: "CASCADE"
 });
 
-export { User, Profile, AuthToken, OtpCode, Post, Tag, PostTag };
+/* Post <--> Comment (1:N) */
+Post.hasMany(Comment, {
+    foreignKey: "postId",
+    onDelete: "CASCADE",
+    as: "comments"
+});
+
+Comment.belongsTo(Post, {
+    foreignKey: "postId",
+    onDelete: "CASCADE",
+    as: "post"
+});
+
+/* User <--> Comment (1:N) */
+User.hasMany(Comment, {
+    foreignKey: "userId",
+    onDelete: "CASCADE",
+    as: "comments"
+});
+
+Comment.belongsTo(User, {
+    foreignKey: "userId",
+    onDelete: "CASCADE",
+    as: "user"
+});
+
+/* Comment <--> Comment (1:N) */
+Comment.belongsTo(Comment, {
+    as: "parent",
+    foreignKey: "parentId",
+    onDelete: "CASCADE"
+});
+
+Comment.hasMany(Comment, {
+    as: "replies",
+    foreignKey: "parentId",
+    onDelete: "CASCADE"
+});
+
+/* User <--> Reaction (1:N) */
+User.hasMany(Reaction, {
+    foreignKey: "userId",
+    onDelete: "CASCADE",
+    as: "reactions"
+});
+
+Reaction.belongsTo(User, {
+    foreignKey: "userId",
+    onDelete: "CASCADE",
+    as: "user"
+});
+
+export { User, Profile, AuthToken, OtpCode, Post, Tag, PostTag, Comment, Reaction };
