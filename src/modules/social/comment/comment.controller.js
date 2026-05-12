@@ -41,3 +41,35 @@ export const getComments = asyncHandler(async (req, res) => {
         data: comments
     });
 });
+
+export const updateComment = asyncHandler(async (req, res) => {
+    const userId = req.user.id;
+    const commentId = req.params.commentId;
+
+    const { content } = req.body;
+
+    const comment = await commentService.updateComment(userId, commentId, {
+        content
+    });
+
+    sendResponse(res, {
+        statusCode: 200,
+        message: "Comment updated successfully",
+        data: comment
+    });
+});
+
+export const deleteComment = asyncHandler(async (req, res) => {
+    const userId = req.user.id;
+    const commentId = req.params.commentId;
+
+    await commentService.deleteComment(userId, commentId);
+
+    sendResponse(res, {
+        statusCode: 200,
+        message: "Comment deleted successfully",
+        data: {
+            id: commentId
+        }
+    });
+});
