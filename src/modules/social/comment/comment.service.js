@@ -41,39 +41,78 @@ export const createComment = async (userId, data) => {
     return fullComment;
 };
 
-export const getComments = async (postId) => {
+// export const getComments = async (postId) => {
 
+//     const comments = await Comment.findAll({
+//         where: {
+//             postId,
+//             parentId: null
+//         },
+//         attributes: {
+//             exclude: ["userId", "deletedAt"]
+//         },
+//         include: [
+//             {
+//                 model: User,
+//                 as: "user",
+//                 attributes: ["id", "firstName", "lastName", "email", "userName"]
+//             },
+//             {
+//                 model: Comment,
+//                 as: "replies",
+//                 attributes: {
+//                     exclude: ["userId", "postId", "deletedAt"]
+//                 },
+//                 include: [
+//                     {
+//                         model: User,
+//                         as: "user",
+//                         attributes: ["id", "firstName", "lastName", "email", "userName"]
+//                     }
+//                 ]
+//             }
+//         ],
+//         order: [["createdAt", "DESC"]]
+//     })
+
+//     return comments;
+// };
+
+const buildTree = (comments) => {
+    const map = {};
+    const tree = [];
+
+    comments.forEach(comment => {
+        map[comment.id] = {
+            ...comment.toJSON(),
+            replies: []
+        };
+    });
+
+    comments.forEach(comment => {
+        if (comment.parentId) {
+            map[comment.parentId]?.replies.push(map[comment.id]);
+        } else {
+            tree.push(map[comment.id]);
+        }
+    });
+
+    return tree;
+};
+
+export const getComments = async (postId) => {
     const comments = await Comment.findAll({
         where: {
             postId,
-            parentId: null
         },
-        attributes: {
-            exclude: ["userId", "deletedAt"]
+        attributes: { exclude: ["userId", "deletedAt"] },
+        include: {
+            model: User,
+            as: "user",
+            attributes: ["id", "firstName", "lastName", "email", "userName"]
         },
-        include: [
-            {
-                model: User,
-                as: "user",
-                attributes: ["id", "firstName", "lastName", "email", "userName"]
-            },
-            {
-                model: Comment,
-                as: "replies",
-                attributes: {
-                    exclude: ["userId", "postId", "deletedAt"]
-                },
-                include: [
-                    {
-                        model: User,
-                        as: "user",
-                        attributes: ["id", "firstName", "lastName", "email", "userName"]
-                    }
-                ]
-            }
-        ],
         order: [["createdAt", "DESC"]]
-    })
+    });
 
-    return comments;
-};
+    return buildTree(comments);
+}
