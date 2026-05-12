@@ -25,3 +25,19 @@ export const createComment = asyncHandler(async (req, res) => {
         data: comment
     });
 });
+
+export const getComments = asyncHandler(async (req, res) => {
+    const postId = req.params.id;
+
+    if (!postId) {
+        throw new AppError("Post id is required", 400);
+    }
+
+    const comments = await commentService.getComments(postId);
+
+    sendResponse(res, {
+        statusCode: 200,
+        message: "Comments fetched successfully",
+        data: comments
+    });
+});

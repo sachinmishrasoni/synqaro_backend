@@ -28,7 +28,7 @@ export const createComment = async (userId, data) => {
     });
 
     const fullComment = await Comment.findByPk(comment.id, {
-        attributes: { exclude: ["userId"] },
+        attributes: { exclude: ["userId", "postId", "deletedAt"] },
         include: [
             {
                 model: User,
@@ -39,4 +39,41 @@ export const createComment = async (userId, data) => {
     });
 
     return fullComment;
+};
+
+export const getComments = async (postId) => {
+
+    const comments = await Comment.findAll({
+        where: {
+            postId,
+            parentId: null
+        },
+        attributes: {
+            exclude: ["userId", "deletedAt"]
+        },
+        include: [
+            {
+                model: User,
+                as: "user",
+                attributes: ["id", "firstName", "lastName", "email", "userName"]
+            },
+            {
+                model: Comment,
+                as: "replies",
+                attributes: {
+                    exclude: ["userId", "postId", "deletedAt"]
+                },
+                include: [
+                    {
+                        model: User,
+                        as: "user",
+                        attributes: ["id", "firstName", "lastName", "email", "userName"]
+                    }
+                ]
+            }
+        ],
+        order: [["createdAt", "DESC"]]
+    })
+
+    return comments;
 };
