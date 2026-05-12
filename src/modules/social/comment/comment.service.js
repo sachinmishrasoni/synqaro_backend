@@ -147,10 +147,6 @@ export const updateComment = async (userId, commentId, data) => {
     return updatedComment;
 }
 
-import sequelize from "#config/database.js";
-import Comment from "./comment.model.js";
-import AppError from "#utils/AppError.js";
-
 const deleteRepliesRecursively = async (parentId, transaction) => {
     const replies = await Comment.findAll({
         where: { parentId },
