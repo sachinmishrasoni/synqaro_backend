@@ -1,8 +1,9 @@
 import sequelize from "#config/database.js";
-import { Post, Tag, User } from "#models/index.js";
+import { Comment, Post, Tag, User } from "#models/index.js";
 import AppError from "#utils/AppError.js";
 import { Op } from "sequelize";
 import { getOrCreateTags } from "../tag/tag.service.js";
+import { getReactionSummary } from "../reaction/reaction.service.js";
 
 
 // Create Post
@@ -56,7 +57,7 @@ export const createPost = async (userId, data) => {
 };
 
 // Get Posts
-export const getPosts = async (query) => {
+export const getPosts = async (query, currentUserId) => {
     const page = parseInt(query.page) || 1;
     const limit = parseInt(query.limit) || 10;
     const offset = (page - 1) * limit;
@@ -91,7 +92,40 @@ export const getPosts = async (query) => {
         distinct: true,
         limit,
         offset,
-        attributes: { exclude: ["imagePublicId", "userId", "deletedAt"] },
+        attributes: {
+            exclude: ["imagePublicId", "userId", "deletedAt"],
+            include: [
+                [
+                    sequelize.literal(`(
+                    SELECT COUNT(*)
+                    FROM reactions r
+                    WHERE r.entity_type = 'post'
+                    AND r.entity_id = Post.id
+                        )`),
+                    "reactionCount"
+                ],
+                [
+                    sequelize.literal(`(
+                SELECT COUNT(*)
+                FROM comments c
+                WHERE c.post_id = Post.id
+                AND c.deleted_at IS NULL
+                    )`),
+                    "commentCount"
+                ],
+                [
+                    sequelize.literal(`(
+                SELECT type
+                FROM reactions r
+                WHERE r.entity_type = 'post'
+                AND r.entity_id = Post.id
+                AND r.user_id = ${currentUserId}
+                LIMIT 1
+            )`),
+                    "myReaction"
+                ]
+            ]
+        },
         order: [["createdAt", "DESC"]],
     });
 
@@ -107,7 +141,7 @@ export const getPosts = async (query) => {
 }
 
 // Get Post by Id
-export const getPostById = async (postId) => {
+export const getPostById = async (postId, userId) => {
     const post = await Post.findByPk(postId, {
         attributes: { exclude: ["imagePublicId", "userId", "deletedAt"] },
         include: [
@@ -129,7 +163,24 @@ export const getPostById = async (postId) => {
         throw new AppError("Post not found", 404);
     }
 
-    return post;
+    const commentCount = await Comment.count({
+        where: {
+            postId,
+            deletedAt: null
+        }
+    });
+
+    const reactionSummary = await getReactionSummary(
+        "post",
+        postId,
+        userId
+    );
+
+    return {
+        ...post.toJSON(),
+        commentCount,
+        reactionSummary,
+    };
 }
 
 // Update Post

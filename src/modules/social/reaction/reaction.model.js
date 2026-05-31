@@ -35,6 +35,7 @@ const Reaction = sequelize.define("reactions", {
     indexes: [
         {
             unique: true,
+            name: "unique_user_entity_reaction",
             fields: ["userId", "entityType", "entityId"]
         }
     ]

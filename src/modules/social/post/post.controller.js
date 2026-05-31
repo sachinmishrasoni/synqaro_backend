@@ -56,7 +56,9 @@ export const createPost = asyncHandler(async (req, res) => {
 });
 
 export const getPosts = asyncHandler(async (req, res) => {
-    const posts = await postService.getPosts(req.query);
+    const currentUserId = req.user.id;
+
+    const posts = await postService.getPosts(req.query, currentUserId);
 
     sendResponse(res, {
         statusCode: 200,
@@ -67,9 +69,10 @@ export const getPosts = asyncHandler(async (req, res) => {
 });
 
 export const getPostById = asyncHandler(async (req, res) => {
+    const userId = req.user.id;
     const postId = req.params.id;
 
-    const post = await postService.getPostById(postId);
+    const post = await postService.getPostById(postId, userId);
 
     sendResponse(res, {
         statusCode: 200,
