@@ -7,6 +7,7 @@ import Tag from "#modules/social/tag/tag.model.js";
 import PostTag from "#modules/social/tag/postTag.model.js";
 import Comment from "#modules/social/comment/comment.model.js";
 import Reaction from "#modules/social/reaction/reaction.model.js";
+import Follow from "#modules/social/follow/follow.model.js";
 
 /* User <--> Profile(1:1) */
 User.hasOne(Profile, { foreignKey: "userId", onDelete: "CASCADE" });
@@ -95,4 +96,29 @@ Reaction.belongsTo(User, {
     as: "user"
 });
 
-export { User, Profile, AuthToken, OtpCode, Post, Tag, PostTag, Comment, Reaction };
+
+User.belongsToMany(User, {
+    through: Follow,
+    as: "followers",
+    foreignKey: "followingId",
+    otherKey: "followerId"
+});
+
+User.belongsToMany(User, {
+    through: Follow,
+    as: "following",
+    foreignKey: "followerId",
+    otherKey: "followingId"
+});
+
+Follow.belongsTo(User, {
+    foreignKey: "followerId",
+    as: "follower"
+});
+
+Follow.belongsTo(User, {
+    foreignKey: "followingId",
+    as: "following"
+});
+
+export { User, Profile, AuthToken, OtpCode, Post, Tag, PostTag, Comment, Reaction, Follow };
