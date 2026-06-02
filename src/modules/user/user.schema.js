@@ -32,3 +32,12 @@ export const createUserSchema = z.object({
         .boolean()
         .optional(),
 });
+
+export const getUserProfileSchema = {
+    params: z.object({
+        id: z.coerce
+            .number()
+            .int()
+            .positive()
+    })
+};

@@ -4,6 +4,7 @@ import AppError from "#utils/AppError.js";
 import { Op } from "sequelize";
 import { getOrCreateTags } from "../tag/tag.service.js";
 import { getReactionSummary } from "../reaction/reaction.service.js";
+import { getPostMetaAttributes } from "./post.utils.js";
 
 
 // Create Post
@@ -94,37 +95,7 @@ export const getPosts = async (query, currentUserId) => {
         offset,
         attributes: {
             exclude: ["imagePublicId", "userId", "deletedAt"],
-            include: [
-                [
-                    sequelize.literal(`(
-                    SELECT COUNT(*)
-                    FROM reactions r
-                    WHERE r.entity_type = 'post'
-                    AND r.entity_id = Post.id
-                        )`),
-                    "reactionCount"
-                ],
-                [
-                    sequelize.literal(`(
-                SELECT COUNT(*)
-                FROM comments c
-                WHERE c.post_id = Post.id
-                AND c.deleted_at IS NULL
-                    )`),
-                    "commentCount"
-                ],
-                [
-                    sequelize.literal(`(
-                SELECT type
-                FROM reactions r
-                WHERE r.entity_type = 'post'
-                AND r.entity_id = Post.id
-                AND r.user_id = ${currentUserId}
-                LIMIT 1
-            )`),
-                    "myReaction"
-                ]
-            ]
+            include: getPostMetaAttributes(userId)
         },
         order: [["createdAt", "DESC"]],
     });

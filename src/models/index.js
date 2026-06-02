@@ -10,16 +10,16 @@ import Reaction from "#modules/social/reaction/reaction.model.js";
 import Follow from "#modules/social/follow/follow.model.js";
 
 /* User <--> Profile(1:1) */
-User.hasOne(Profile, { foreignKey: "userId", onDelete: "CASCADE" });
-Profile.belongsTo(User, { foreignKey: "userId", onDelete: "CASCADE" });
+User.hasOne(Profile, { as: "profile", foreignKey: "userId", onDelete: "CASCADE" });
+Profile.belongsTo(User, { as: "user", foreignKey: "userId", onDelete: "CASCADE" });
 
 /* User <--> AuthToken(1:N) */
-User.hasMany(AuthToken, { foreignKey: "userId", onDelete: "CASCADE" });
-AuthToken.belongsTo(User, { foreignKey: "userId", onDelete: "CASCADE" });
+User.hasMany(AuthToken, { as: "authTokens", foreignKey: "userId", onDelete: "CASCADE" });
+AuthToken.belongsTo(User, { as: "user", foreignKey: "userId", onDelete: "CASCADE" });
 
 /* Profile <--> OTP (1:N) */
-User.hasMany(OtpCode, { foreignKey: "userId", onDelete: "CASCADE" });
-OtpCode.belongsTo(User, { foreignKey: "userId", onDelete: "CASCADE" });
+User.hasMany(OtpCode, { as: "otpCodes", foreignKey: "userId", onDelete: "CASCADE" });
+OtpCode.belongsTo(User, { as: "user", foreignKey: "userId", onDelete: "CASCADE" });
 
 /* User <--> Post (1:N) */
 User.hasMany(Post, { foreignKey: "userId", onDelete: "CASCADE", as: "posts" });
