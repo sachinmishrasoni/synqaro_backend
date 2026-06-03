@@ -2,6 +2,8 @@ import sequelize from "#config/database.js";
 import User from "#modules/user/user.model.js";
 import Follow from "./follow.model.js";
 import AppError from "#utils/AppError.js";
+import { NOTIFICATION_TYPES } from "#constants/notification.constants.js";
+import { createNotification } from "#modules/notification/notification.service.js";
 
 export const toggleFollow = async (
     followerId,
@@ -27,14 +29,13 @@ export const toggleFollow = async (
         }
 
         // Check existing follow
-        const existingFollow =
-            await Follow.findOne({
-                where: {
-                    followerId,
-                    followingId
-                },
-                transaction
-            });
+        const existingFollow = await Follow.findOne({
+            where: {
+                followerId,
+                followingId
+            },
+            transaction
+        });
 
         // Unfollow
         if (existingFollow) {
@@ -51,11 +52,20 @@ export const toggleFollow = async (
         }
 
         // Follow
-        await Follow.create({
-            followerId,
-            followingId
-        }, {
+        await Follow.create({ followerId, followingId }, {
             transaction
+        });
+
+        const follower = await User.findByPk(followerId, {
+            attributes: ["id", "firstName", "lastName", "userName"],
+        });
+
+        await createNotification({
+            senderId: followerId,
+            receiverId: followingId,
+            type: NOTIFICATION_TYPES.FOLLOW,
+            title: "New Follower",
+            message: `${follower.userName} started following you`
         });
 
         await transaction.commit();

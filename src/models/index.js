@@ -8,6 +8,7 @@ import PostTag from "#modules/social/tag/postTag.model.js";
 import Comment from "#modules/social/comment/comment.model.js";
 import Reaction from "#modules/social/reaction/reaction.model.js";
 import Follow from "#modules/social/follow/follow.model.js";
+import Notification from "#modules/notification/notification.model.js";
 
 /* User <--> Profile(1:1) */
 User.hasOne(Profile, { as: "profile", foreignKey: "userId", onDelete: "CASCADE" });
@@ -121,4 +122,27 @@ Follow.belongsTo(User, {
     as: "following"
 });
 
-export { User, Profile, AuthToken, OtpCode, Post, Tag, PostTag, Comment, Reaction, Follow };
+
+/* Sender */
+User.hasMany(Notification, {
+    foreignKey: "senderId",
+    as: "sentNotifications"
+});
+
+Notification.belongsTo(User, {
+    foreignKey: "senderId",
+    as: "sender"
+});
+
+/* Receiver */
+User.hasMany(Notification, {
+    foreignKey: "receiverId",
+    as: "receivedNotifications"
+});
+
+Notification.belongsTo(User, {
+    foreignKey: "receiverId",
+    as: "receiver"
+});
+
+export { User, Profile, AuthToken, OtpCode, Post, Tag, PostTag, Comment, Reaction, Follow, Notification };
