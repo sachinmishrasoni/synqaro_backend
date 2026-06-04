@@ -9,6 +9,7 @@ import Comment from "#modules/social/comment/comment.model.js";
 import Reaction from "#modules/social/reaction/reaction.model.js";
 import Follow from "#modules/social/follow/follow.model.js";
 import Notification from "#modules/notification/notification.model.js";
+import Bookmark from "#modules/social/bookmark/bookmark.model.js";
 
 /* User <--> Profile(1:1) */
 User.hasOne(Profile, { as: "profile", foreignKey: "userId", onDelete: "CASCADE" });
@@ -145,4 +146,20 @@ Notification.belongsTo(User, {
     as: "receiver"
 });
 
-export { User, Profile, AuthToken, OtpCode, Post, Tag, PostTag, Comment, Reaction, Follow, Notification };
+/* User <--> Bookmark (1:N) */
+User.hasMany(Bookmark, {
+    foreignKey: "userId",
+    onDelete: "CASCADE",
+    as: "bookmarks"
+});
+
+Bookmark.belongsTo(User, {
+    foreignKey: "userId",
+    onDelete: "CASCADE",
+    as: "user"
+});
+
+export {
+    User, Profile, AuthToken, OtpCode, Post, Tag, PostTag,
+    Comment, Reaction, Follow, Notification, Bookmark
+};
