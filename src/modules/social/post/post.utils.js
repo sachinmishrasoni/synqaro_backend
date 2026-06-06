@@ -32,6 +32,29 @@ export const getPostMetaAttributes = (userId) => {
                 LIMIT 1
             )`),
             "myReaction"
+        ],
+
+        [
+            sequelize.literal(`
+                EXISTS (
+                    SELECT 1
+                    FROM bookmarks b
+                    WHERE b.user_id = ${userId}
+                    AND b.entity_type = 'post'
+                    AND b.entity_id = Post.id
+                )
+            `),
+            "isBookmarked"
         ]
     ];
+};
+
+export const normalizePost = (post) => {
+    const data = post.toJSON();
+
+    data.reactionCount = Number(data.reactionCount || 0);
+    data.commentCount = Number(data.commentCount || 0);
+    data.isBookmarked = Boolean(data.isBookmarked);
+
+    return data;
 };

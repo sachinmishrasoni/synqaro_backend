@@ -1,6 +1,6 @@
 import { Follow, Post, Tag, User } from "#models/index.js";
 import { Op } from "sequelize";
-import { getPostMetaAttributes } from "../post/post.utils.js";
+import { getPostMetaAttributes, normalizePost } from "../post/post.utils.js";
 import { getPagination, getPaginationMeta } from "#utils/pagination.utils.js";
 
 export const getFeed = async (userId, query) => {
@@ -56,6 +56,6 @@ export const getFeed = async (userId, query) => {
 
     return {
         meta: getPaginationMeta(posts.count, page, limit),
-        data: posts.rows
+        data:  posts.rows.map(normalizePost)
     };
 };

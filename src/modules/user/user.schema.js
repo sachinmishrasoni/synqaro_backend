@@ -41,3 +41,10 @@ export const getUserProfileSchema = {
             .positive()
     })
 };
+
+export const getSuggestionsSchema = {
+    query: z.object({
+        page: z.coerce.number().optional(),
+        limit: z.coerce.number().optional()
+    })
+};

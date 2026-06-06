@@ -32,7 +32,8 @@ export const getBookmarks = asyncHandler(async (req, res) => {
     sendResponse(res, {
         statusCode: 200,
         message: "Bookmarks fetched successfully",
-        data: bookmarks
+        data: bookmarks.data,
+        meta: bookmarks.meta
     });
 });
 
