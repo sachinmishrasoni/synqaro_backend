@@ -7,10 +7,6 @@ SYNQARO/
 │   ├── architecture/
 │   │   └── project-structure.md
 │   │
-│   ├── database/
-│   │   ├── er-diagram.png
-│   │   └── schema.md
-│   │
 │   └── postman/
 │       ├── Synqaro API Collection.json
 │       └── environment.sample.json
@@ -22,44 +18,36 @@ SYNQARO/
 ├── src/
 │   │
 │   ├── middlewares/
-│   │   ├── auth.middleware.js
-│   │   ├── upload.middleware.js
-│   │   └── validation.middleware.js
 │   │
 │   ├── models/
-│   │   ├── User.js
 │   │   └── index.js
 │   │
 │   ├── modules/
 │   │   │
 │   │   ├── auth/
-│   │   │   ├── controller.js
-│   │   │   ├── service.js
-│   │   │   ├── validation.js
-│   │   │   └── routes.js
+│   │   ├── notebook/
+│   │   ├── notification/
+│   │   ├── profile/
+│   │   ├── social/
+│   │   ├── todo/
 │   │   │
-│   │   ├── users/
-│   │   │   ├── controller.js
-│   │   │   ├── service.js
-│   │   │   ├── validation.js
-│   │   │   └── routes.js
-│   │   │
-│   │   └── ...
+│   │   └── user/
+│   │       ├── user.controller.js
+│   │       ├── user.model.js
+│   │       ├── user.routes.js
+│   │       ├── user.schema.js
+│   │       └── user.service.js
 │   │
 │   ├── routes/
 │   │   └── index.js
 │   │
 │   ├── shared/
+│   │   ├── config/
 │   │   ├── constants/
-│   │   ├── helpers/
 │   │   ├── services/
-│   │   ├── utils/
-│   │   └── validators/
+│   │   └── utils/
 │   │
 │   ├── templates/
-│   │   ├── email/
-│   │   └── pdf/
-│   │
 │   ├── views/
 │   │
 │   ├── app.js
@@ -68,110 +56,360 @@ SYNQARO/
 ├── .env
 ├── .gitignore
 ├── .sequelizerc
+├── jsconfig.json
 ├── package.json
-├── package-lock.json
-└── README.md
+└── package-lock.json
 ```
 
-## Directory Explanation
+## Architecture Overview
+
+The application follows a **feature-based modular architecture** where each business feature is isolated inside the `modules` directory.
+
+Each module owns its:
+
+* Routes
+* Controller
+* Service
+* Validation Schema
+* Model (if required)
+
+This keeps features independent and easier to maintain.
+
+---
+
+## Directory Responsibilities
 
 ### docs/
 
-Contains project documentation.
+Project documentation.
+
+Examples:
+
+* Architecture documents
+* API collections
+* Setup guides
+* Database documentation
+
+---
 
 ### migrations/
 
-Database migration files managed by Sequelize.
+Database schema migration files managed through Sequelize.
+
+Examples:
+
+* Create users table
+* Add profile fields
+* Modify existing schema
+
+---
 
 ### seeders/
 
-Seed data used for development and testing.
+Database seed data.
+
+Examples:
+
+* Roles
+* Permissions
+* Sample users
+
+---
 
 ### public/
 
-Publicly accessible static files.
+Publicly accessible assets.
+
+Examples:
+
+* Images
+* Static files
+* Uploads
+
+---
 
 ### middlewares/
 
-Express middleware functions.
+Express middleware layer.
 
 Examples:
 
 * Authentication
 * Authorization
-* Request validation
-* File upload
+* Request logging
+* Error handling
+* Validation middleware
+
+---
 
 ### models/
 
-Sequelize database models and associations.
+Central Sequelize initialization and model registration.
 
-### modules/
+Example:
 
-Feature-based application modules.
-
-Each module contains:
-
-```text
-module-name/
-├── controller.js
-├── service.js
-├── validation.js
-└── routes.js
+```js
+models/index.js
 ```
 
 Responsibilities:
 
-* Controller → Request/Response handling
-* Service → Business logic
-* Validation → Request validation
-* Routes → API endpoints
+* Sequelize connection
+* Model loading
+* Model associations
 
-### routes/
+---
 
-Registers all application routes.
+### modules/
 
-### shared/
+Contains all business features.
 
-Reusable project-wide utilities.
+Current modules:
+
+```text
+auth/
+notebook/
+notification/
+profile/
+social/
+todo/
+user/
+```
+
+---
+
+### Module Structure
+
+Example:
+
+```text
+user/
+├── user.controller.js
+├── user.model.js
+├── user.routes.js
+├── user.schema.js
+└── user.service.js
+```
+
+#### user.routes.js
+
+Responsible for route registration.
+
+Example:
+
+```js
+router.get('/', getUsers);
+```
+
+---
+
+#### user.controller.js
+
+Handles request and response lifecycle.
+
+Responsibilities:
+
+* Receive request
+* Call service layer
+* Return response
+
+Avoid business logic here.
+
+---
+
+#### user.service.js
+
+Contains business logic.
+
+Responsibilities:
+
+* Database operations
+* Validations
+* Data processing
+* External integrations
+
+---
+
+#### user.schema.js
+
+Request validation schemas.
 
 Examples:
 
-* Helpers
-* Constants
-* Common Services
-* Utility Functions
-* Validators
+* Create User Validation
+* Update User Validation
+* Query Validation
+
+---
+
+#### user.model.js
+
+Feature-specific Sequelize model definition.
+
+Responsibilities:
+
+* Table structure
+* Associations
+* Model hooks
+
+---
+
+### routes/
+
+Application route registration.
+
+Example:
+
+```js
+src/routes/index.js
+```
+
+Responsibilities:
+
+* Register all module routes
+* Apply global middleware
+
+---
+
+### shared/
+
+Reusable utilities shared across the application.
+
+#### config/
+
+Application configuration.
+
+Examples:
+
+* Database config
+* Environment config
+* Third-party credentials
+
+#### constants/
+
+Application constants.
+
+Examples:
+
+```js
+ROLE_ADMIN
+ROLE_USER
+STATUS_ACTIVE
+```
+
+#### services/
+
+Shared services used by multiple modules.
+
+Examples:
+
+* Email Service
+* SMS Service
+* Notification Service
+
+#### utils/
+
+Reusable helper functions.
+
+Examples:
+
+* Pagination
+* Response Formatter
+* Date Utilities
+* File Utilities
+
+---
 
 ### templates/
 
-Email and PDF templates.
+Application templates.
+
+Examples:
+
+* Email templates
+* PDF templates
+
+---
 
 ### views/
 
-Server-rendered views if required.
+Server-side rendered views if required.
+
+---
 
 ### app.js
 
-Express application configuration.
+Express application setup.
+
+Responsibilities:
+
+* Middleware registration
+* Security setup
+* Route loading
+
+---
 
 ### index.js
 
 Application entry point.
 
-## Architecture Principles
+Responsibilities:
 
-1. Feature-based modular architecture.
-2. Thin controllers.
-3. Business logic inside services.
-4. Reusable utilities inside shared.
-5. Centralized error handling.
-6. Standard API response structure.
-7. Validation before business logic execution.
+* Start HTTP server
+* Initialize application
 
-## Standard Response Format
+---
 
-Success:
+## Development Guidelines
+
+### Module First Approach
+
+Every new feature should be created inside:
+
+```text
+src/modules/
+```
+
+Example:
+
+```text
+src/modules/student/
+```
+
+### Keep Controllers Thin
+
+Good:
+
+```js
+const users = await userService.getAllUsers();
+```
+
+Bad:
+
+```js
+// Database queries directly inside controller
+```
+
+### Shared Code Rule
+
+If functionality is used by multiple modules, move it to:
+
+```text
+src/shared/
+```
+
+Examples:
+
+* Pagination
+* Email Sending
+* Common Validators
+* Utility Functions
+
+---
+
+## Standard API Response
+
+Success Response
 
 ```json
 {
@@ -181,7 +419,7 @@ Success:
 }
 ```
 
-Error:
+Error Response
 
 ```json
 {
