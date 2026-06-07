@@ -10,6 +10,7 @@ import Reaction from "#modules/social/reaction/reaction.model.js";
 import Follow from "#modules/social/follow/follow.model.js";
 import Notification from "#modules/notification/notification.model.js";
 import Bookmark from "#modules/social/bookmark/bookmark.model.js";
+import Block from "#modules/block/block.model.js";
 
 /* User <--> Profile(1:1) */
 User.hasOne(Profile, { as: "profile", foreignKey: "userId", onDelete: "CASCADE" });
@@ -159,7 +160,33 @@ Bookmark.belongsTo(User, {
     as: "user"
 });
 
+/* User <--> Block (Blocker) */
+User.hasMany(Block, {
+    foreignKey: "blockerId",
+    onDelete: "CASCADE",
+    as: "blockedUsers"
+});
+
+Block.belongsTo(User, {
+    foreignKey: "blockerId",
+    onDelete: "CASCADE",
+    as: "blocker"
+});
+
+/* User <--> Block (Blocked) */
+User.hasMany(Block, {
+    foreignKey: "blockedId",
+    onDelete: "CASCADE",
+    as: "blockedByUsers"
+});
+
+Block.belongsTo(User, {
+    foreignKey: "blockedId",
+    onDelete: "CASCADE",
+    as: "blocked"
+});
+
 export {
     User, Profile, AuthToken, OtpCode, Post, Tag, PostTag,
-    Comment, Reaction, Follow, Notification, Bookmark
+    Comment, Reaction, Follow, Notification, Bookmark, Block
 };
