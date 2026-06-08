@@ -1,5 +1,5 @@
 import { Op } from "sequelize";
-import Block from "./block.model";
+import Block from "./block.model.js";
 
 export const isBlocked = async (userId, targetUserId) => {
 

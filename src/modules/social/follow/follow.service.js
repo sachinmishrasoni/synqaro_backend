@@ -4,11 +4,9 @@ import Follow from "./follow.model.js";
 import AppError from "#utils/AppError.js";
 import { NOTIFICATION_TYPES } from "#constants/notification.constants.js";
 import { createNotification } from "#modules/notification/notification.service.js";
+import { isBlocked } from "#modules/block/block.utils.js";
 
-export const toggleFollow = async (
-    followerId,
-    followingId
-) => {
+export const toggleFollow = async (followerId, followingId) => {
     const transaction = await sequelize.transaction();
 
     try {
@@ -26,6 +24,12 @@ export const toggleFollow = async (
 
         if (!user) {
             throw new AppError("User not found", 404);
+        }
+
+        // Block check
+        const blocked = await isBlocked(followerId, followingId);
+        if (blocked) {
+            throw new AppError("You cannot follow this user", 403);
         }
 
         // Check existing follow
@@ -83,7 +87,6 @@ export const toggleFollow = async (
         throw error;
     }
 };
-
 
 export const getFollowers = async (userId, query) => {
     const page = Number(query.page) || 1;

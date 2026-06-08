@@ -186,6 +186,30 @@ Block.belongsTo(User, {
     as: "blocked"
 });
 
+/* User <--> Report (Reporter) */
+
+// User.hasMany(Report, {
+//     foreignKey: "reporterId",
+//     as: "reports"
+// });
+
+// Report.belongsTo(User, {
+//     foreignKey: "reporterId",
+//     as: "reporter"
+// });
+
+// /* User <--> Report (Reviewer/Admin) */
+
+// User.hasMany(Report, {
+//     foreignKey: "reviewedBy",
+//     as: "reviewedReports"
+// });
+
+// Report.belongsTo(User, {
+//     foreignKey: "reviewedBy",
+//     as: "reviewer"
+// });
+
 export {
     User, Profile, AuthToken, OtpCode, Post, Tag, PostTag,
     Comment, Reaction, Follow, Notification, Bookmark, Block

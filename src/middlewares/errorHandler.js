@@ -8,7 +8,7 @@ const errorHandler = (err, _req, res, _next) => {
     let message = err.message || "Internal Server Error";
     let errors = [];
 
-    console.error(err);
+    // console.error("Error:", err);
 
     //  Handle Sequelize Unique Constraint (duplicate)
     if (err.name === "SequelizeUniqueConstraintError") {
