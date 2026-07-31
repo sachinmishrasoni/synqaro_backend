@@ -1,6 +1,10 @@
 import sequelize from "#config/database.js";
 
 export const getPostMetaAttributes = (userId) => {
+    const safeUserId = Number.isInteger(Number(userId))
+        ? Number(userId)
+        : "NULL";
+
     return [
         [
             sequelize.literal(`(
@@ -28,7 +32,7 @@ export const getPostMetaAttributes = (userId) => {
                 FROM reactions r
                 WHERE r.entity_type = 'post'
                 AND r.entity_id = Post.id
-                AND r.user_id = ${userId}
+                AND r.user_id = ${safeUserId}
                 LIMIT 1
             )`),
             "myReaction"
@@ -39,7 +43,7 @@ export const getPostMetaAttributes = (userId) => {
                 EXISTS (
                     SELECT 1
                     FROM bookmarks b
-                    WHERE b.user_id = ${userId}
+                    WHERE b.user_id = ${safeUserId}
                     AND b.entity_type = 'post'
                     AND b.entity_id = Post.id
                 )

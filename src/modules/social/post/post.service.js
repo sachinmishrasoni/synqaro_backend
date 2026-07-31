@@ -65,6 +65,8 @@ export const getPosts = async (query, currentUserId) => {
 
     const { userId, tag, search, status } = query;
 
+    console.log({ userId, tag, search, status });
+
     const where = {};
     if (userId) where.userId = userId;
     if (status) where.status = status;
