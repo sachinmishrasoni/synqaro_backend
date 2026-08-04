@@ -11,6 +11,8 @@ import Follow from "#modules/social/follow/follow.model.js";
 import Notification from "#modules/notification/notification.model.js";
 import Bookmark from "#modules/social/bookmark/bookmark.model.js";
 import Block from "#modules/block/block.model.js";
+// import Report from "#modules/report/report.model.js";
+import Todo from "#modules/todo/todo.model.js";
 
 /* User <--> Profile(1:1) */
 User.hasOne(Profile, { as: "profile", foreignKey: "userId", onDelete: "CASCADE" });
@@ -210,7 +212,31 @@ Block.belongsTo(User, {
 //     as: "reviewer"
 // });
 
+
+// Todo
+// User -> Todo
+User.hasMany(Todo, {
+    foreignKey: "userId",
+    as: "todos",
+});
+
+Todo.belongsTo(User, {
+    foreignKey: "userId",
+    as: "user",
+});
+
+// Parent Todo -> Sub Todo
+Todo.hasMany(Todo, {
+    foreignKey: "parentId",
+    as: "subTodos",
+});
+
+Todo.belongsTo(Todo, {
+    foreignKey: "parentId",
+    as: "parentTodo",
+});
+
 export {
     User, Profile, AuthToken, OtpCode, Post, Tag, PostTag,
-    Comment, Reaction, Follow, Notification, Bookmark, Block
+    Comment, Reaction, Follow, Notification, Bookmark, Block, Todo
 };
