@@ -13,12 +13,67 @@ export const createTodo = asyncHandler(async (req, res) => {
 });
 
 export const getTodos = asyncHandler(async (req, res) => {
-    const todos = await todoService.getTodos(req.user.id, req.query);
+    const userId = req.user.id;
+
+    const todos = await todoService.getTodos(userId, req.query);
 
     sendResponse(res, {
         statusCode: 200,
         message: "Todos fetched successfully",
         data: todos.data,
         meta: todos.meta
+    });
+});
+
+export const getTodoById = asyncHandler(async (req, res) => {
+    const userId = req.user.id;
+    const todoId = req.params.todoId;
+
+    const todo = await todoService.getTodoById(userId, todoId);
+
+    sendResponse(res, {
+        statusCode: 200,
+        message: "Todo fetched successfully",
+        data: todo
+    });
+
+});
+
+export const updateTodo = asyncHandler(async (req, res) => {
+    const userId = req.user.id;
+    const todoId = req.params.todoId;
+
+    const todo = await todoService.updateTodo(todoId, userId, req.validated.body);
+
+    sendResponse(res, {
+        statusCode: 200,
+        message: "Todo updated successfully",
+        data: todo
+    });
+});
+
+export const deleteTodo = asyncHandler(async (req, res) => {
+    const userId = req.user.id;
+    const todoId = req.params.todoId;
+
+    const todo = await todoService.deleteTodo(todoId, userId);
+
+    sendResponse(res, {
+        statusCode: 200,
+        message: "Todo deleted successfully",
+        data: todo
+    });
+});
+
+export const bulkDeleteTodos = asyncHandler(async (req, res) => {
+
+    const userId = req.user.id;
+    const { ids } = req.body;
+
+    await todoService.bulkDeleteTodos(userId, ids);
+
+    sendResponse(res, {
+        statusCode: 200,
+        message: "Todos deleted successfully",
     });
 });

@@ -36,3 +36,13 @@ export const createTodoSchema = {
             .optional()
     })
 };
+
+
+
+export const bulkDeleteTodoSchema = z.object({
+    body: z.object({
+        ids: z
+            .array(z.number().int().positive())
+            .min(1, "At least one todo id is required."),
+    }),
+});
