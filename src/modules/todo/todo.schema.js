@@ -46,3 +46,12 @@ export const bulkDeleteTodoSchema = z.object({
             .min(1, "At least one todo id is required."),
     }),
 });
+
+export const archiveTodoSchema = z.object({
+    params: z.object({
+        todoId: z.coerce
+            .number()
+            .int()
+            .positive(),
+    }),
+});

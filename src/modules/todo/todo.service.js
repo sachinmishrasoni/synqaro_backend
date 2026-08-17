@@ -4,6 +4,7 @@ import { Op } from "sequelize";
 import Todo from "./todo.model.js";
 import pickFields from "#utils/pickFields.js";
 import sequelize from "#config/database.js";
+import buildWhereClause from "#utils/buildWhereClause.js";
 
 export const createTodo = async (userId, payload) => {
     const { parentId, title, description, priority, status, dueDate } = payload || {};
@@ -60,28 +61,41 @@ export const createTodo = async (userId, payload) => {
 export const getTodos = async (userId, query) => {
 
     const { page, limit, offset } = getPagination(query);
-    const { search, status, priority, dueDate, archived, parentId } = query;
+    const { archived, parentId } = query;
 
-    const where = { userId };
+    // const where = { userId };
 
-    if (status) where.status = status;
-    if (priority) where.priority = priority;
-    if (dueDate) where.dueDate = dueDate;
-    if (parentId !== undefined) where.parentId = parentId;
-    if (search) {
-        where[Op.or] = [
-            { title: { [Op.like]: `%${search}%` } },
-            { description: { [Op.like]: `%${search}%` } }
-        ]
-    }
+    // if (status) where.status = status;
+    // if (priority) where.priority = priority;
+    // if (dueDate) where.dueDate = dueDate;
+    // // if (parentId !== undefined) where.parentId = parentId;
+    // where.parentId = parentId !== undefined ? parentId : null;
+    // if (search) {
+    //     where[Op.or] = [
+    //         { title: { [Op.like]: `%${search}%` } },
+    //         { description: { [Op.like]: `%${search}%` } }
+    //     ]
+    // }
 
-    if (archived) {
-        where.archivedAt = { [Op.not]: null };
-    } else {
-        where.archivedAt = null;
-    }
+    const parentIdWhere = parentId !== undefined ? parentId : null;
+    const archivedWhere = archived === "true" ? { [Op.not]: null } : null;
+    // where.archivedAt = archivedWhere;
 
-    // console.log("where", where);
+    const where = buildWhereClause({
+        baseWhere: { userId },
+        query,
+        filters: ["status", "priority", "dueDate"],
+        search: {
+            keyword: query.search,
+            fields: ["title", "description"]
+        },
+        custom: (where) => {
+            where.parentId = parentIdWhere;
+            where.archivedAt = archivedWhere;
+        }
+    })
+
+    console.log("where", where);
 
     const todos = await Todo.findAndCountAll({
         where,
@@ -98,9 +112,13 @@ export const getTodos = async (userId, query) => {
             {
                 model: Todo,
                 as: "subTodos",
+                required: false,
+                where: {
+                    archivedAt: archivedWhere
+                },
                 attributes: {
                     exclude: ["userId", "deletedAt"],
-                }
+                },
             }
         ]
     });
@@ -294,6 +312,67 @@ export const bulkDeleteTodos = async (userId, ids) => {
     });
 };
 
-export const archiveTodo = async () => {
+// ✅ Model	Done
+// ✅ Migration	Done
+// ✅ Create Todo	Done
+// ✅ Get Todos	Done
+// ✅ Get Todo By Id	Done
+// ✅ Update Todo	Done
+// ✅ Delete Todo	Done
+// ✅ Bulk Delete	Done
+// ❌ Archive Todo	Pending
+// ❌ Restore Todo	Pending
+// ❌ Change Status	Pending
+// ❌ Reorder Todos	Pending
+// ❌ Todo Statistics	Pending
+
+export const archiveTodo = async (todoId, userId) => {
+
+    return sequelize.transaction(async (transaction) => {
+
+        const todo = await Todo.findOne({
+            where: {
+                id: todoId,
+                userId,
+            },
+            transaction,
+        });
+
+        if (!todo) {
+            throw new AppError("Todo not found.", 404);
+        }
+
+        if (todo.archivedAt) {
+            throw new AppError("Todo is already archived.", 400);
+        }
+
+        const archivedAt = new Date();
+
+        // Archive parent
+        await todo.update(
+            { archivedAt },
+            { transaction }
+        );
+
+        // Archive child todos
+        const archivedChildren = await Todo.update(
+            { archivedAt },
+            {
+                where: {
+                    parentId: todoId,
+                    userId,
+                    archivedAt: null,
+                },
+                transaction,
+            }
+        );
+
+        await todo.reload({ transaction });
+
+        return {
+            todo,
+            archivedChildrenCount: archivedChildren[0], // affected rows
+        };
+    });
 
 };

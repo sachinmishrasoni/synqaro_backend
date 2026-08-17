@@ -77,3 +77,27 @@ export const bulkDeleteTodos = asyncHandler(async (req, res) => {
         message: "Todos deleted successfully",
     });
 });
+
+
+export const archiveTodo = asyncHandler(async (req, res) => {
+
+    const userId = req.user.id;
+    const todoId = req.params.todoId;
+
+    const {
+        todo,
+        archivedChildrenCount,
+    } = await todoService.archiveTodo(todoId, userId);
+
+    const message =
+        archivedChildrenCount > 0
+            ? `Todo archived successfully. ${archivedChildrenCount} subtodo${archivedChildrenCount > 1 ? "s were" : " was"} also archived.`
+            : "Todo archived successfully.";
+
+    sendResponse(res, {
+        statusCode: 200,
+        message,
+        data: todo,
+    });
+
+});
