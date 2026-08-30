@@ -320,7 +320,7 @@ export const bulkDeleteTodos = async (userId, ids) => {
 // ✅ Update Todo	Done
 // ✅ Delete Todo	Done
 // ✅ Bulk Delete	Done
-// ❌ Archive Todo	Pending
+// ✅ Archive Todo	Done
 // ❌ Restore Todo	Pending
 // ❌ Change Status	Pending
 // ❌ Reorder Todos	Pending
