@@ -51,6 +51,7 @@ import { comparePassword } from "#utils/password.js";
 //     };
 // };
 
+// BullMQ + Redis → Nodemailer
 export const registerUser = async (data) => {
     const { firstName, lastName, userName, email, password } = data || {};
 
@@ -109,7 +110,7 @@ export const registerUser = async (data) => {
 
         // await sendEmail(user.email, "Verify your email", `Your OTP is ${otp}`);
 
-        sendEmail({
+        await sendEmail({
             to: user.email,
             subject: "Verify your email",
             // text: `Your OTP is ${otp}`,
@@ -123,7 +124,12 @@ export const registerUser = async (data) => {
         };
 
     } catch (error) {
-        await transaction.rollback();
+        // await transaction.rollback();
+        // throw error;
+        if (!transaction.finished) {
+            await transaction.rollback();
+        }
+
         throw error;
     }
 };
