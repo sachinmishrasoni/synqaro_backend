@@ -1,10 +1,12 @@
+import { HTTP } from "#constants/http.js";
+import AppError from "#utils/AppError.js";
 import { ZodError } from "zod";
 
 export const validate = (schema) => {
     return (req, res, next) => {
         try {
             req.validated = {};
-
+            
             if (schema.body) {
                 req.validated.body = schema.body.parse(req.body);
             }
@@ -22,14 +24,20 @@ export const validate = (schema) => {
         } catch (error) {
 
             if (error instanceof ZodError) {
-                return res.status(400).json({
-                    success: false,
-                    message: "Validation failed",
-                    errors: error.issues.map(issue => ({
-                        field: issue.path.join("."),
-                        message: issue.message
-                    }))
-                });
+                const errors = error.issues.map((issue) => ({
+                    field: issue.path.join("."),
+                    message: issue.message,
+                }));
+
+                return next(
+                    new AppError(
+                        "Validation failed",
+                        HTTP.BAD_REQUEST,
+                        { fields: errors },
+                        true,
+                        "VALIDATION_ERROR"
+                    )
+                );
             }
 
             next(error);

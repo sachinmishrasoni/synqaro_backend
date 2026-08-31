@@ -1,60 +1,62 @@
 import transporter from "#config/smtp.js";
 import env from "#config/env.js";
+import AppError from "#utils/AppError.js";
+import { HTTP } from "#constants/http.js";
 
-const SMTP_ERROR_MESSAGES = {
-    ECONNECTION: {
-        user: "Unable to connect to the email service. Please try again later.",
-        developer:
-            "SMTP connection failed. Check SMTP configuration and network connectivity.",
-    },
+// const SMTP_ERROR_MESSAGES = {
+//     EAUTH: {
+//         message: "Unable to authenticate with the email service. Please contact support.",
+//         errorCode: "EMAIL_AUTHENTICATION_ERROR",
+//     },
+//     ECONNECTION: {
+//         message: "Unable to connect to the email service. Please try again later.",
+//         errorCode: "EMAIL_CONNECTION_ERROR",
+//     },
 
-    ETIMEDOUT: {
-        user: "The email service took too long to respond. Please try again later.",
-        developer:
-            "SMTP connection timed out. Check SMTP host/port or hosting-provider SMTP restrictions.",
-    },
+//     ETIMEDOUT: {
+//         message: "The email service took too long to respond. Please try again later.",
+//         errorCode: "EMAIL_SERVICE_TIMEOUT",
+//     },
 
-    ECONNREFUSED: {
-        user: "The email service is currently unavailable. Please try again later.",
-        developer:
-            "SMTP connection was refused. Check SMTP host, port, firewall, or provider configuration.",
-    },
+//     ECONNREFUSED: {
+//         message: "The email service is currently unavailable. Please try again later.",
+//         errorCode: "EMAIL_SERVICE_UNAVAILABLE",
+//     },
 
-    EAUTH: {
-        user: "Unable to authenticate with the email service. Please contact support.",
-        developer:
-            "SMTP authentication failed. Check email username and password/App Password.",
-    },
+//     EAUTH: {
+//         message: "Unable to authenticate with the email service. Please contact support.",
+//         errorCode: "EMAIL_AUTHENTICATION_ERROR",
+//     },
 
-    EENVELOPE: {
-        user: "The email address information is invalid.",
-        developer:
-            "Invalid SMTP envelope. Check from/to/cc/bcc email addresses.",
-    },
-};
+//     EENVELOPE: {
+//         message: "The email address information is invalid.",
+//         errorCode: "EMAIL_INVALID_ADDRESS",
+//     },
 
-export class EmailServiceError extends Error {
-    constructor({ userMessage, developerMessage, code }) {
-        super(userMessage);
+//     ESOCKET: {
+//         message: "Unable to send the email. Please try again later.",
+//         errorCode: "EMAIL_CONNECTION_ERROR",
+//     },
+// };
 
-        this.name = "EmailServiceError";
-        this.code = code;
-        this.userMessage = userMessage;
-        this.developerMessage = developerMessage;
-    }
-}
+// const getSmtpError = (error) => {
+//     return (
+//         SMTP_ERROR_MESSAGES[error.code] || {
+//             message: "Unable to send the email. Please try again later.",
+//             errorCode: "EMAIL_SERVICE_ERROR",
+//         }
+//     );
+// };
 
-const getSmtpError = (error) => {
-    return (
-        SMTP_ERROR_MESSAGES[error.code] || {
-            user: "Unable to send the email. Please try again later.",
-            developer: `Unexpected Nodemailer error: ${error.message}`,
-        }
-    );
-};
-
-
-export const sendEmail = async ({ to, subject, text, html, attachments, cc, bcc }) => {
+export const sendEmail = async ({
+    to,
+    subject,
+    text,
+    html,
+    attachments,
+    cc,
+    bcc,
+}) => {
     try {
         await transporter.sendMail({
             from: `"Synqaro Support" <${env.email.user}>`,
@@ -71,20 +73,25 @@ export const sendEmail = async ({ to, subject, text, html, attachments, cc, bcc 
             success: true,
         };
     } catch (error) {
-        const smtpError = getSmtpError(error);
+        // const smtpError = getSmtpError(error);
 
+        // Developer information
         console.error("Nodemailer Error:", {
             code: error.code,
             message: error.message,
             command: error.command,
             responseCode: error.responseCode,
             response: error.response,
-        });
+            stack: error.stack,
+        }, "SMTP Error:", error);
 
-        throw new EmailServiceError({
-            code: error.code,
-            userMessage: smtpError.user,
-            developerMessage: smtpError.developer,
-        });
+        // Common application error
+        throw new AppError(
+            error.message,
+            HTTP[503] ? 503 : 500,
+            null,
+            true,
+            error.code
+        );
     }
 };

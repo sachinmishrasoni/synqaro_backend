@@ -53,6 +53,7 @@ import { comparePassword } from "#utils/password.js";
 
 // BullMQ + Redis → Nodemailer
 export const registerUser = async (data) => {
+    // console.log(data);
     const { firstName, lastName, userName, email, password } = data || {};
 
     const transaction = await sequelize.transaction();
@@ -65,9 +66,11 @@ export const registerUser = async (data) => {
             transaction
         });
 
+        // console.log(existingUser, email, userName);
+
         // Case 1: User exists and verified
         if (existingUser && existingUser.isEmailVerified) {
-            throw new AppError("User already exists", 400);
+            throw new AppError("User already exists", 400, );
         }
 
         let user;

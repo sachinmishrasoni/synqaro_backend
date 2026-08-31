@@ -15,7 +15,7 @@ userRoutes.use(blockRoutes);
 // follow routes mount
 userRoutes.use(followRoutes);
 
-userRoutes.get("/suggestions", authenticate, validate(getSuggestionsSchema), getSuggestions);
+userRoutes.get("/suggestions", authenticate, validate({ body: getSuggestionsSchema }), getSuggestions);
 
 // userRoutes.post("/", validate(createUserSchema), createUser);
 userRoutes.get("/:id/profile", authenticate, validate(getUserProfileSchema), getUserProfile);
