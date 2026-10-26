@@ -101,3 +101,19 @@ export const archiveTodo = asyncHandler(async (req, res) => {
     });
 
 });
+
+export const restoreTodo = asyncHandler(async (req, res) => {
+    const userId = req.user.id;
+    const { todoId } = req.params;
+
+    const result = await todoService.restoreTodo(
+        todoId,
+        userId
+    );
+
+    sendResponse(res, {
+        statusCode: 200,
+        message: "Todo restored successfully",
+        data: result,
+    });
+});

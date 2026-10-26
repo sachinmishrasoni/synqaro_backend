@@ -55,3 +55,9 @@ export const archiveTodoSchema = z.object({
             .positive(),
     }),
 });
+
+export const restoreTodoSchema = z.object({
+    params: z.object({
+        todoId: z.coerce.number().int().positive(),
+    }),
+});

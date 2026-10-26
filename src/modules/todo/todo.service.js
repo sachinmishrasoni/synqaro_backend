@@ -376,3 +376,53 @@ export const archiveTodo = async (todoId, userId) => {
     });
 
 };
+
+export const restoreTodo = async (todoId, userId) => {
+    const transaction = await sequelize.transaction();
+
+    try {
+        const todo = await Todo.findOne({
+            where: {
+                id: todoId,
+                userId,
+                archivedAt: {
+                    [Op.not]: null
+                }
+            },
+            transaction
+        });
+
+        if (!todo) {
+            throw new AppError("Todo not found or not archived.", 404);
+        }
+
+        await todo.update(
+            { archivedAt: null },
+            { transaction }
+        );
+
+        const [restoredChildren] = await Todo.update({
+            archivedAt: null
+        }, {
+            where: {
+                parentId: todoId,
+                userId,
+                archivedAt: {
+                    [Op.not]: null
+                }
+            },
+            transaction
+        });
+
+        await transaction.commit();
+
+        return {
+            todo,
+            restoredChildrenCount: restoredChildren
+        };
+
+    } catch (error) {
+        await transaction.rollback();
+        throw error;
+    }
+}
